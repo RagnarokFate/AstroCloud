@@ -1,0 +1,6 @@
+@AstroCloud_HostAddress = http://localhost:5175
+
+GET {{AstroCloud_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
