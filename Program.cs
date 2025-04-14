@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 
 using AstroCloud.Data;
+using AstroCloud.Data.Interfaces;
+using AstroCloud.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//lines to services configuration
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
