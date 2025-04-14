@@ -35,8 +35,6 @@ namespace AstroCloud.Migrations
                         .HasColumnName("city");
 
                     b.Property<DateTime>("CreatedAt")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
@@ -75,6 +73,8 @@ namespace AstroCloud.Migrations
                         .HasColumnName("phone");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
 

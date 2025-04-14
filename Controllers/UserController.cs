@@ -1,7 +1,11 @@
-﻿using AstroCloud.Data.Entities;
+﻿using AstroCloud.Data.DTO;
+using AstroCloud.Data.Entities;
+using AstroCloud.Data.Enum;
 using AstroCloud.Data.Interfaces;
 using AstroCloud.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace AstroCloud.Controllers
 {
@@ -31,35 +35,80 @@ namespace AstroCloud.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> CreateUser(User user)
+        public async Task<ActionResult<UserResponseDto>> CreateUser(UserCreateDto userDto)
         {
-            if (await _userRepository.EmailExistsAsync(user.Email))
+            if (await _userRepository.EmailExistsAsync(userDto.Email))
             {
                 return Conflict("Email already exists");
             }
 
-            // Hash password here before saving
-            var createdUser = await _userRepository.AddAsync(user);
-            return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
+            // Hash password
+            var passwordHash = PasswordService.HashPassword(userDto.Password);
+            var now = DateTime.UtcNow; // Get current time once
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = userDto.Email,
+                Password = passwordHash,
+                FirstName = userDto.FirstName,
+                LastName = userDto.LastName,
+                Gender = userDto.Gender,
+                PhoneNumber = userDto.PhoneNumber,
+                City = userDto.City,
+                ZipCode = userDto.ZipCode,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = now,
+                UserToken = GenerateUserToken(),
+                IsActive = true,
+                UserType = UserType.Default
+            };
+
+            await _userRepository.AddAsync(user);
+
+            return CreatedAtAction(nameof(GetUser),
+                new { id = user.Id },
+                MapToResponseDto(user));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id, User user)
+        public async Task<IActionResult> UpdateUser(Guid id, UserUpdateDto userDto)
         {
-            if (id != user.Id) return BadRequest();
+            var existingUser = await _userRepository.GetByIdAsync(id);
+            if (existingUser == null)
+            {
+                return NotFound();
+            }
+
+            // Update only the allowed fields
+            existingUser.Email = userDto.Email;
+            existingUser.FirstName = userDto.FirstName;
+            existingUser.LastName = userDto.LastName;
+            existingUser.Gender = userDto.Gender;
+            existingUser.PhoneNumber = userDto.PhoneNumber;
+            existingUser.City = userDto.City;
+            existingUser.ZipCode = userDto.ZipCode;
+            existingUser.UpdatedAt = DateTime.UtcNow;
+
+            // Only update password if provided
+            if (!string.IsNullOrEmpty(userDto.Password))
+            {
+                existingUser.Password = PasswordService.HashPassword(userDto.Password);
+            }
 
             try
             {
-                await _userRepository.UpdateAsync(user);
+                await _userRepository.UpdateAsync(existingUser);
+                return NoContent();
             }
-            catch
+            catch (DbUpdateConcurrencyException)
             {
                 if (!await _userRepository.ExistsAsync(id))
+                {
                     return NotFound();
+                }
                 throw;
             }
-
-            return NoContent();
         }
 
         [HttpDelete("{id}")]
@@ -71,5 +120,25 @@ namespace AstroCloud.Controllers
             await _userRepository.DeleteAsync(id);
             return NoContent();
         }
+
+        private string GenerateUserToken()
+        {
+            return Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        }
+
+        private UserResponseDto MapToResponseDto(User user)
+        {
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                // Map other properties you want to return
+                CreatedAt = user.CreatedAt
+            };
+        }
+        
     }
+
 }

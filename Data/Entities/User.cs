@@ -51,11 +51,11 @@ namespace AstroCloud.Data.Entities
         [RegularExpression(@"^\d{5}(-\d{4})?$", ErrorMessage = "ZipCode must be a valid format.")]
         public string ZipCode { get; set; }
 
-        [Timestamp]
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [Required]
+        [Timestamp]
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
