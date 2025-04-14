@@ -61,7 +61,7 @@ namespace AstroCloud.Data.Entities
 
 
         [Column("device_token")]
-        public string DeviceToken { get; set; } 
+        public string? DeviceToken { get; set; } = null;
 
         [Column("is_active")]
         public bool IsActive { get; set; } = true;

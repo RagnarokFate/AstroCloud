@@ -18,9 +18,10 @@ namespace AstroCloud.Controllers
         private readonly IUserRepository _userRepository;
         private readonly AuthService _authService;
 
-        public UserController(IUserRepository userRepository)
+        public UserController(IUserRepository userRepository, AuthService authService)
         {
             _userRepository = userRepository;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -40,6 +41,11 @@ namespace AstroCloud.Controllers
         [HttpPost]
         public async Task<ActionResult<UserResponseDto>> CreateUser(UserCreateDto userDto)
         {
+            if (_authService == null)
+            {
+                return StatusCode(500, "Authentication service not available");
+            }
+
             if (await _userRepository.EmailExistsAsync(userDto.Email))
             {
                 return Conflict("Email already exists");
