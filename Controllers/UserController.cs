@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AstroCloud.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
