@@ -44,6 +44,7 @@ namespace AstroCloud.Controllers
 
             // Hash password
             var passwordHash = PasswordService.HashPassword(userDto.Password);
+            var now = DateTime.UtcNow; // Get current time once
 
             var user = new User
             {
@@ -57,7 +58,7 @@ namespace AstroCloud.Controllers
                 City = userDto.City,
                 ZipCode = userDto.ZipCode,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                UpdatedAt = now,
                 UserToken = GenerateUserToken(),
                 IsActive = true,
                 UserType = UserType.Default

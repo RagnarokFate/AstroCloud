@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AstroCloud.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20250412173130_InitalCreate")]
-    partial class InitalCreate
+    [Migration("20250414194519_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,8 +38,6 @@ namespace AstroCloud.Migrations
                         .HasColumnName("city");
 
                     b.Property<DateTime>("CreatedAt")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
@@ -78,6 +76,8 @@ namespace AstroCloud.Migrations
                         .HasColumnName("phone");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
 

@@ -16,6 +16,27 @@ namespace AstroCloud.Data
         {
             base.OnModelCreating(modelBuilder);
         }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.Entity is User &&
+                          (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                var user = (User)entityEntry.Entity;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    user.CreatedAt = DateTime.UtcNow;
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
         public DbSet<User> Users { get; set; }
     }
     
