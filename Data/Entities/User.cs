@@ -60,8 +60,8 @@ namespace AstroCloud.Data.Entities
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 
-        [Column("user_token")]
-        public string UserToken { get; set; }
+        [Column("device_token")]
+        public string DeviceToken { get; set; } 
 
         [Column("is_active")]
         public bool IsActive { get; set; } = true;

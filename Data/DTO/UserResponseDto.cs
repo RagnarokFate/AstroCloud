@@ -14,5 +14,7 @@ namespace AstroCloud.Data.DTO
         public string ZipCode { get; set; }
         public DateTime CreatedAt { get; set; }
         public UserType UserType { get; set; }
+        public string DeviceToken { get; set; } 
+
     }
 }
