@@ -237,7 +237,7 @@ try
 
     await app.RunAsync();
 }
-catch (Exception ex) when (ex.GetType().Name is not "StopTheHostException")
+catch (Exception ex) when (ex.GetType().Name is not "StopTheHostException" && ex.GetType().Name is not "HostAbortedException")
 {
     Log.Fatal(ex, "Application startup failed");
 }
