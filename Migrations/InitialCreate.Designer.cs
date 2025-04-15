@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AstroCloud.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20250414220244_InitialCreate")]
+    [Migration("20250415111009_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -64,6 +64,10 @@ namespace AstroCloud.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_active");
 
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_email_verified");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("longtext")
@@ -79,6 +83,14 @@ namespace AstroCloud.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("phone");
 
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("longtext")
+                        .HasColumnName("reset_token");
+
+                    b.Property<DateTime?>("ResetTokenExpires")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("reset_token_expires");
+
                     b.Property<DateTime>("UpdatedAt")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -88,6 +100,10 @@ namespace AstroCloud.Migrations
                     b.Property<int>("UserType")
                         .HasColumnType("int")
                         .HasColumnName("user_type");
+
+                    b.Property<string>("VerificationToken")
+                        .HasColumnType("longtext")
+                        .HasColumnName("verification_token");
 
                     b.Property<string>("ZipCode")
                         .IsRequired()

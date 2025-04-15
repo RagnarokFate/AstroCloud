@@ -2,6 +2,7 @@
 using AstroCloud.Data.Entities;
 using AstroCloud.Data.Enum;
 using AstroCloud.Data.Interfaces;
+using AstroCloud.Data.Interfaces.AstroCloud.Data.Interfaces;
 using AstroCloud.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +18,13 @@ namespace AstroCloud.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly AuthService _authService;
+        private readonly IEmailService _emailService;
 
-        public UserController(IUserRepository userRepository, AuthService authService)
+        public UserController(IUserRepository userRepository,AuthService authService,IEmailService emailService)
         {
             _userRepository = userRepository;
             _authService = authService;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -177,6 +180,91 @@ namespace AstroCloud.Controllers
             }
 
             return Ok(new { DeviceToken = user.DeviceToken });
+        }
+
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail(VerifyEmailDto verifyDto)
+        {
+            var user = await _userRepository.GetByVerificationToken(verifyDto.Token);
+            if (user == null)
+            {
+                return BadRequest("Invalid verification token");
+            }
+
+            user.IsEmailVerified = true;
+            user.VerificationToken = null;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+
+            return Ok(new { Message = "Email verified successfully" });
+        }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            var user = await _userRepository.GetByEmailAsync(forgotPasswordDto.Email);
+            if (user == null)
+            {
+                return Ok(new { Message = "If the email exists, a reset link has been sent" });
+            }
+
+            // Generate reset token that expires after 1 hour
+            user.ResetToken = _authService.GeneratePasswordResetToken();
+            user.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+
+            // Send email
+            await _emailService.SendPasswordResetEmail(user.Email, user.ResetToken);
+
+            return Ok(new { Message = "If the email exists, a reset link has been sent" });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto resetDto)
+        {
+            var user = await _userRepository.GetByResetToken(resetDto.Token);
+            if (user == null || user.ResetTokenExpires < DateTime.UtcNow)
+            {
+                return BadRequest("Invalid or expired reset token");
+            }
+
+            // Update password and clear reset token
+            user.Password = PasswordService.HashPassword(resetDto.NewPassword);
+            user.ResetToken = null;
+            user.ResetTokenExpires = null;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+
+            return Ok(new { Message = "Password reset successful" });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}/role")]
+        public async Task<IActionResult> ChangeUserRole(Guid id, ChangeRoleDto roleDto)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.UserType = roleDto.NewRole;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+
+            return NoContent();
+        }
+
+        // Add this to your existing CreateUser method after user creation:
+        private async Task SendVerificationEmail(User user)
+        {
+            user.VerificationToken = _authService.GenerateEmailVerificationToken();
+            await _userRepository.UpdateAsync(user);
+            await _emailService.SendVerificationEmail(user.Email, user.VerificationToken);
         }
 
         private string GenerateDeviceToken()

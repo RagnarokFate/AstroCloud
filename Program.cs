@@ -9,6 +9,7 @@ using Serilog;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.MySql;
 using Microsoft.OpenApi.Models;
+using AstroCloud.Data.Interfaces.AstroCloud.Data.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
