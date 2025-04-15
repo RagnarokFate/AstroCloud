@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AstroCloud.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20250414194519_InitialCreate")]
+    [Migration("20250414220244_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -40,6 +40,10 @@ namespace AstroCloud.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("DeviceToken")
+                        .HasColumnType("longtext")
+                        .HasColumnName("device_token");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -80,11 +84,6 @@ namespace AstroCloud.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
-
-                    b.Property<string>("UserToken")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("user_token");
 
                     b.Property<int>("UserType")
                         .HasColumnType("int")

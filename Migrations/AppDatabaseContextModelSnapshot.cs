@@ -38,6 +38,10 @@ namespace AstroCloud.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("DeviceToken")
+                        .HasColumnType("longtext")
+                        .HasColumnName("device_token");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("longtext")
@@ -77,11 +81,6 @@ namespace AstroCloud.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
-
-                    b.Property<string>("UserToken")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("user_token");
 
                     b.Property<int>("UserType")
                         .HasColumnType("int")
