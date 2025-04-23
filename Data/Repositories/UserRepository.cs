@@ -22,11 +22,17 @@ namespace AstroCloud.Data.Repositories
         {
             return await _context.Users.AnyAsync(u => u.Email == email);
         }
+
+        public async Task<User?> GetByPhoneAsync(string phoneNumber)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+        }
     }
 
     public interface IUserRepository : IRepository<User>
     {
         Task<User> GetByEmailAsync(string email);
         Task<bool> EmailExistsAsync(string email);
+        Task<User?> GetByPhoneAsync(string phoneNumber);
     }
 }

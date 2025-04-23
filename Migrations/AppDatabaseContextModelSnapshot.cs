@@ -47,6 +47,10 @@ namespace AstroCloud.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("email");
 
+                    b.Property<string>("EmailVerificationCode")
+                        .HasColumnType("longtext")
+                        .HasColumnName("email_verification_code");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("longtext")
@@ -61,10 +65,30 @@ namespace AstroCloud.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_active");
 
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_email_verified");
+
+                    b.Property<bool>("IsPhoneVerified")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_phone_verified");
+
+                    b.Property<string>("LastLoginDevice")
+                        .HasColumnType("longtext")
+                        .HasColumnName("last_login_device");
+
+                    b.Property<string>("LastLoginIp")
+                        .HasColumnType("longtext")
+                        .HasColumnName("last_login_ip");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("last_name");
+
+                    b.Property<DateTime?>("LastVerificationAttempt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("last_verification_attempt");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -76,6 +100,10 @@ namespace AstroCloud.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("phone");
 
+                    b.Property<string>("PhoneVerificationCode")
+                        .HasColumnType("longtext")
+                        .HasColumnName("phone_verification_code");
+
                     b.Property<DateTime>("UpdatedAt")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -85,6 +113,14 @@ namespace AstroCloud.Migrations
                     b.Property<int>("UserType")
                         .HasColumnType("int")
                         .HasColumnName("user_type");
+
+                    b.Property<int>("VerificationAttempts")
+                        .HasColumnType("int")
+                        .HasColumnName("verification_attempts");
+
+                    b.Property<DateTime?>("VerificationCodeExpiry")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("verification_code_expiry");
 
                     b.Property<string>("ZipCode")
                         .IsRequired()

@@ -40,7 +40,20 @@ namespace AstroCloud.Migrations
                     device_token = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     is_active = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    user_type = table.Column<int>(type: "int", nullable: false)
+                    user_type = table.Column<int>(type: "int", nullable: false),
+                    is_email_verified = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    is_phone_verified = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    email_verification_code = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    phone_verification_code = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    last_login_ip = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    last_login_device = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    verification_code_expiry = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    last_verification_attempt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    verification_attempts = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
