@@ -1,12 +1,17 @@
-﻿using AstroCloud.Data.DTO;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AstroCloud.Data.DTO;
 using AstroCloud.Data.Entities;
 using AstroCloud.Data.Enum;
 using AstroCloud.Data.Interfaces;
 using AstroCloud.Data.Repositories;
 using AstroCloud.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AstroCloud.Controllers
 {
@@ -17,15 +22,17 @@ namespace AstroCloud.Controllers
         private readonly IUserRepository _userRepository;
         private readonly AuthService _authService;
         private readonly RateLimitService _rateLimitService;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<UserController> _logger;
 
         public UserController(IUserRepository userRepository, AuthService authService,
-            RateLimitService rateLimitService, ILogger<UserController> logger)
+            RateLimitService rateLimitService, ILogger<UserController> logger, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _authService = authService;
             _rateLimitService = rateLimitService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -45,15 +52,10 @@ namespace AstroCloud.Controllers
         }
 
         [HttpPost]
+        [HttpPost]
         public async Task<ActionResult<UserResponseDto>> CreateUser(UserCreateDto userDto)
         {
             _logger.LogInformation("CreateUser: Creating user with email {Email}", userDto.Email);
-
-            if (_authService == null)
-            {
-                _logger.LogError("CreateUser: AuthService is null");
-                return StatusCode(500, "Authentication service not available");
-            }
 
             if (await _userRepository.EmailExistsAsync(userDto.Email))
             {
@@ -79,16 +81,17 @@ namespace AstroCloud.Controllers
                 UpdatedAt = now,
                 DeviceToken = "",
                 IsActive = true,
-                UserType = UserType.Default
+                UserType = UserType.Default,
+                IsEmailVerified = false,
+                IsPhoneVerified = false
             };
 
             await _userRepository.AddAsync(user);
-            var token = _authService.GenerateToken(user);
 
             return Ok(new
             {
                 User = MapToResponseDto(user),
-                Token = token
+                Message = "User created successfully. Please verify your email and phone number."
             });
         }
 
@@ -386,17 +389,59 @@ namespace AstroCloud.Controllers
                 return Unauthorized("Invalid credentials");
             }
 
+            if (!user.IsEmailVerified)
+            {
+                _logger.LogWarning("Login: Email not verified for {Email}", loginDto.Email);
+                return Unauthorized("Email not verified");
+            }
+
+            // Generate new device token and update last login info
             user.DeviceToken = GenerateDeviceToken();
             user.LastLoginIp = httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
             user.LastLoginDevice = httpContextAccessor.HttpContext?.Request?.Headers["User-Agent"].ToString();
+            user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
 
+            // Generate JWT token
             var token = _authService.GenerateToken(user);
 
-            return Ok(new { User = MapToResponseDto(user), Token = token });
+            _logger.LogInformation("Login: Successful login for {Email}", loginDto.Email);
+
+            return Ok(new
+            {
+                Token = token,
+                ExpiresIn = Convert.ToInt32(_configuration["Jwt:ExpiryInMinutes"]) * 60,
+                TokenType = "Bearer"
+            });
         }
-        
+
+        [HttpPost("logout")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> Logout()
+        {
+            var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+            {
+                _logger.LogWarning("Logout: Invalid user claim in token");
+                return Unauthorized();
+            }
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning("Logout: User {UserId} not found", userId);
+                return NotFound("User not found");
+            }
+
+            // Invalidate device token
+            user.DeviceToken = null;
+            await _userRepository.UpdateAsync(user);
+
+            _logger.LogInformation("Logout: User {UserId} logged out", userId);
+
+            return Ok(new { Message = "Successfully logged out" });
+        }
 
         private string GenerateDeviceToken()
         {
