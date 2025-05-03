@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AstroCloud.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20250426004533_AddNotificationsTable")]
-    partial class AddNotificationsTable
+    [Migration("20250503104706_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,8 +69,6 @@ namespace AstroCloud.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
                 });
@@ -157,6 +155,14 @@ namespace AstroCloud.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("phone_verification_code");
 
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("longtext")
+                        .HasColumnName("reset_token");
+
+                    b.Property<DateTime?>("ResetTokenExpires")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("reset_token_expires");
+
                     b.Property<DateTime>("UpdatedAt")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -175,6 +181,10 @@ namespace AstroCloud.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("verification_code_expiry");
 
+                    b.Property<string>("VerificationToken")
+                        .HasColumnType("longtext")
+                        .HasColumnName("verification_token");
+
                     b.Property<string>("ZipCode")
                         .IsRequired()
                         .HasColumnType("longtext")
@@ -183,17 +193,6 @@ namespace AstroCloud.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("AstroCloud.Data.Entities.Notification", b =>
-                {
-                    b.HasOne("AstroCloud.Data.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

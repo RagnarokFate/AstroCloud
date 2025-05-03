@@ -69,8 +69,18 @@ namespace AstroCloud.Data.Entities
         [Column("user_type")]
         public UserType UserType { get; set; } = UserType.Default;
 
+
         [Column("is_email_verified")]
         public bool IsEmailVerified { get; set; } = false;
+
+        [Column("verification_token")]
+        public string? VerificationToken { get; set; }
+
+        [Column("reset_token")]
+        public string? ResetToken { get; set; }
+
+        [Column("reset_token_expires")]
+        public DateTime? ResetTokenExpires { get; set; }
 
         [Column("is_phone_verified")]
         public bool IsPhoneVerified { get; set; } = false;

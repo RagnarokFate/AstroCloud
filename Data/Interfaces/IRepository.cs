@@ -14,4 +14,5 @@ namespace AstroCloud.Data.Interfaces
         Task<bool> DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
     }
+
 }

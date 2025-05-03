@@ -80,4 +80,14 @@ public class AuthService
             return null;
         }
     }
+
+    public string GenerateEmailVerificationToken()
+{
+    return Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+}
+
+public string GeneratePasswordResetToken()
+{
+    return Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+}
 }
