@@ -3,7 +3,7 @@
     public class LoginResponseDto
     {
         public string Token { get; set; }
-        public DateTime Expiration { get; set; }
-        public UserResponseDto User { get; set; }
+        public int ExpiresIn { get; set; }
+        public string TokenType { get; set; } = "Bearer";
     }
 }

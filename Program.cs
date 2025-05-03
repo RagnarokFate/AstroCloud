@@ -9,7 +9,7 @@ using Serilog;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.MySql;
 using Microsoft.OpenApi.Models;
-using AstroCloud.Data.Interfaces.AstroCloud.Data.Interfaces;
+using AstroCloud.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,12 +91,22 @@ try
                 Array.Empty<string>()
             }
         });
+        
     });
 
+    builder.Services.AddMemoryCache();
+    builder.Services.AddSingleton<RateLimitService>();
+
+    builder.Services.AddHttpContextAccessor();
     // Repository Pattern
     builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<AuthService>();
+
+
+    builder.Services.AddScoped<NotificationService>();
+    builder.Services.AddHttpClient(); // For FCM requests
+
 
     // JWT Authentication with enhanced validation
     var jwtConfig = builder.Configuration.GetSection("Jwt");

@@ -81,5 +81,30 @@ namespace AstroCloud.Data.Entities
 
         [Column("reset_token_expires")]
         public DateTime? ResetTokenExpires { get; set; }
+
+        [Column("is_phone_verified")]
+        public bool IsPhoneVerified { get; set; } = false;
+
+        [Column("email_verification_code")]
+        public string? EmailVerificationCode { get; set; } = null;
+
+        [Column("phone_verification_code")]
+        public string? PhoneVerificationCode { get; set; } = null;
+
+        [Column("last_login_ip")]
+        public string? LastLoginIp { get; set; } = null;
+
+        [Column("last_login_device")]
+        public string? LastLoginDevice { get; set; } = null;
+
+        [Column("verification_code_expiry")]
+        public DateTime? VerificationCodeExpiry { get; set; } = null;
+
+        // In User.cs
+        [Column("last_verification_attempt")]
+        public DateTime? LastVerificationAttempt { get; set; }
+
+        [Column("verification_attempts")]
+        public int VerificationAttempts { get; set; } = 0;
     }
 }

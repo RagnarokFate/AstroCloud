@@ -2,10 +2,10 @@
 
 namespace AstroCloud.Data.DTO
 {
-    public class ForgotPasswordDto
+    public class PhoneVerificationRequestDto
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        [Phone]
+        public string PhoneNumber { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AstroCloud.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20250415111009_InitialCreate")]
+    [Migration("20250503104706_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,6 +24,54 @@ namespace AstroCloud.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("AstroCloud.Data.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DataPayload")
+                        .HasColumnType("longtext")
+                        .HasColumnName("data_payload");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_read");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("message");
+
+                    b.Property<int>("NotificationType")
+                        .HasColumnType("int")
+                        .HasColumnName("notification_type");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("title");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications");
+                });
 
             modelBuilder.Entity("AstroCloud.Data.Entities.User", b =>
                 {
@@ -50,6 +98,10 @@ namespace AstroCloud.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("email");
 
+                    b.Property<string>("EmailVerificationCode")
+                        .HasColumnType("longtext")
+                        .HasColumnName("email_verification_code");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("longtext")
@@ -68,10 +120,26 @@ namespace AstroCloud.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_email_verified");
 
+                    b.Property<bool>("IsPhoneVerified")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_phone_verified");
+
+                    b.Property<string>("LastLoginDevice")
+                        .HasColumnType("longtext")
+                        .HasColumnName("last_login_device");
+
+                    b.Property<string>("LastLoginIp")
+                        .HasColumnType("longtext")
+                        .HasColumnName("last_login_ip");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("last_name");
+
+                    b.Property<DateTime?>("LastVerificationAttempt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("last_verification_attempt");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -82,6 +150,10 @@ namespace AstroCloud.Migrations
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("phone");
+
+                    b.Property<string>("PhoneVerificationCode")
+                        .HasColumnType("longtext")
+                        .HasColumnName("phone_verification_code");
 
                     b.Property<string>("ResetToken")
                         .HasColumnType("longtext")
@@ -100,6 +172,14 @@ namespace AstroCloud.Migrations
                     b.Property<int>("UserType")
                         .HasColumnType("int")
                         .HasColumnName("user_type");
+
+                    b.Property<int>("VerificationAttempts")
+                        .HasColumnType("int")
+                        .HasColumnName("verification_attempts");
+
+                    b.Property<DateTime?>("VerificationCodeExpiry")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("verification_code_expiry");
 
                     b.Property<string>("VerificationToken")
                         .HasColumnType("longtext")
