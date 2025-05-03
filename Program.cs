@@ -103,6 +103,11 @@ try
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<AuthService>();
 
+
+    builder.Services.AddScoped<NotificationService>();
+    builder.Services.AddHttpClient(); // For FCM requests
+
+
     // JWT Authentication with enhanced validation
     var jwtConfig = builder.Configuration.GetSection("Jwt");
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

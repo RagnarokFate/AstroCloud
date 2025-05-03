@@ -16,9 +16,6 @@ namespace AstroCloud.Data.Entities
         [Column("user_id")]
         public Guid UserId { get; set; }
 
-        [ForeignKey("UserId")]
-        public User User { get; set; }
-
         [Required]
         [Column("title")]
         [MaxLength(100)]
