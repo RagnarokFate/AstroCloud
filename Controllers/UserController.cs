@@ -443,6 +443,45 @@ namespace AstroCloud.Controllers
             return Ok(new { Message = "Successfully logged out" });
         }
 
+        [HttpPost("forget-password")]
+        public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordDto forgetPasswordDto)
+        {
+            _logger.LogInformation("ForgetPassword: Attempting password reset for {Email}", forgetPasswordDto.Email);
+
+            // Fetch the user by email
+            var user = await _userRepository.GetByEmailAsync(forgetPasswordDto.Email);
+            if (user == null)
+            {
+                _logger.LogWarning("ForgetPassword: User with email {Email} not found", forgetPasswordDto.Email);
+                return NotFound("User not found");
+            }
+
+            // Verify the current password
+            if (user.Password != PasswordService.HashPassword(forgetPasswordDto.CurrentPassword))
+            {
+                _logger.LogWarning("ForgetPassword: Invalid current password for {Email}", forgetPasswordDto.Email);
+                return BadRequest("Invalid current password");
+            }
+
+            // Validate new password and confirmation
+            if (forgetPasswordDto.NewPassword != forgetPasswordDto.ConfirmNewPassword)
+            {
+                _logger.LogWarning("ForgetPassword: New password and confirmation do not match for {Email}", forgetPasswordDto.Email);
+                return BadRequest("New password and confirmation do not match");
+            }
+
+            // Update the user's password
+            user.Password = PasswordService.HashPassword(forgetPasswordDto.NewPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+
+            _logger.LogInformation("ForgetPassword: Password successfully reset for {Email}", forgetPasswordDto.Email);
+
+            return Ok(new { Message = "Password reset successfully" });
+        }
+
+
         private string GenerateDeviceToken()
         {
             return Convert.ToBase64String(Guid.NewGuid().ToByteArray());
